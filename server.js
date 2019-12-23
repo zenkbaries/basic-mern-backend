@@ -1,6 +1,8 @@
-import express from 'express';
-import bodyParser from 'bpdy-parser';
-import cors from 'cors';
+const express = require( 'express');
+ 
+
+const bodyParser = require( 'body-parser');
+const cors = require( 'cors');
 
 const app = express();
 const PORT = 3000;
