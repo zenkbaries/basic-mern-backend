@@ -40,19 +40,20 @@ quoteRoutes.route('/').get(function(req, res) {
 
 quoteRoutes.route('/random').get((req,res)=> 
     {
-        return Quotes.countDocuments(function(err, count) {
-            if (err) {
-                console.log(err);
-            } else {
-                let randomQuote = Math.ceil(Math.random() * count);
-                res.json(randomQuote);
-                console.log('done GET /random');
+        Quotes.aggregate(
+            [ { $sample: { size: 1 } } ],
+            (err, randomQuote) => {
+                if (err) {
+                    console.log('Error in Aggregate.');
+                    console.log(err);
+                } else {
+                    res.json(randomQuote);
+                    console.log('done sent random quote')
+                }
             }
-        });
+         );
     }
 );
-
-
 
 quoteRoutes.route('/:id').get(function(req,res) {
     let id = req.params.id;
@@ -72,9 +73,7 @@ quoteRoutes.route('/add').post(function(req,res) {
          });
 });
 
-
 app.use('/', quoteRoutes);
-
 
 app.listen (
     PORT,
