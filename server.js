@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const quoteRoutes = express.Router();
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 let Quotes = require('./quotes.model');
 
@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 mongoose.connect(
-    'mongodb://127.0.0.1:27017/quotes',
+    process.env.DB_URI_REMOTE || process.env.DB_URI_LOCAL || 'mongodb://127.0.0.1:27017/quotes',
     { 
         useNewUrlParser: true, 
         useUnifiedTopology: true 
