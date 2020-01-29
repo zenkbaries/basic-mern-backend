@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const quoteRoutes = express.Router();
+
+// TODO: Refactor process.env.PORT to check for null value (https://devcenter.heroku.com/articles/preparing-a-codebase-for-heroku-deployment#4-listen-on-the-correct-port)
 const PORT = process.env.PORT || 4000;
 
 let Quotes = require('./quotes.model');
@@ -12,6 +14,7 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// TODO: refactor to conditional select DB based on NODE_ENV
 mongoose.connect(
     process.env.DB_URI_REMOTE || process.env.DB_URI_LOCAL || 'mongodb://127.0.0.1:27017/quotes',
     { 
