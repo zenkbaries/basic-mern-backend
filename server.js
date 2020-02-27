@@ -55,13 +55,12 @@ mongoose.connect(
 
 const connection = mongoose.connection;
 
-connection.once('open', function() {
+connection.once('open', () => {
     console.log("MongoDB database connection established successfully");
 })
 
-
-quoteRoutes.route('/').get(function(req, res) {
-    Quotes.find(function(err, quotes) {
+quoteRoutes.get('/', (req, res) => {
+    Quotes.find((err, quotes) => {
         if (err) {
             console.log(err);
         } else {
@@ -71,7 +70,7 @@ quoteRoutes.route('/').get(function(req, res) {
     });
 });
 
-quoteRoutes.route('/random').get((req,res)=> 
+quoteRoutes.get('/random', (req,res)=> 
     {
         Quotes.aggregate(
             [ { $sample: { size: 1 } } ],
@@ -81,21 +80,25 @@ quoteRoutes.route('/random').get((req,res)=>
                     console.log(err);
                 } else {
                     res.json(randomQuote);
-                    console.log('done sent random quote')
+                    console.log('/random was accessed')
                 }
             }
          );
     }
 );
 
-quoteRoutes.route('/:id').get(function(req,res) {
-    let id = req.params.id;
-    Quotes.findById(id, function(err,quote) {
-        res.json(quote);
-    });
-});
+quoteRoutes.get('/:id', (req,res) => 
+    {
+        let id = req.params.id;
+        Quotes.findById(id, (err, quote) => {
+            res.json(quote);
+        });
+    }
+);
 
-quoteRoutes.route('/add').post(checkJwt,function(req,res) {
+
+    // TODO: Check if /add is working properl
+quoteRoutes.post('/add', checkJwt, (req,res) => {
     let quote = new Quotes(req.body);
     quote.save()
          .then(quote => {
