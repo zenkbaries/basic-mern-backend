@@ -1,8 +1,12 @@
 {
   "name": "basic-mern-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "backend for basic-mern",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/zenkbaries/basic-mern-backend.git"
+  },
+  "main": "server.js",
   "engines": {
     "npm": "6.9.0",
     "node": "12.4.0"
