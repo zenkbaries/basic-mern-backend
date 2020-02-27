@@ -32,13 +32,13 @@ const checkJwt = jwt({
     }),
   
     audience: authConfig.audience,
-    // issuer: `https://${authConfig.domain}/`,
-    issuer: 'https://dev-gviqn817.auth0.com/',
+    issuer: `https://${authConfig.domain}/`,
+    // issuer: 'https://dev-gviqn817.auth0.com/',
     algorithm: ["RS256"]
   });
 
 
-app.use(jwtCheck);
+app.use(checkJwt);
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
