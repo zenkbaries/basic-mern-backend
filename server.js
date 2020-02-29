@@ -15,14 +15,7 @@ const authConfig = require("./auth_config.json");
 
 let Quotes = require('./quotes.model');
 
-// Set up Auth0 configuration
-// const authConfig = {
-//     domain: "dev-gviqn817.auth0.com",
-//     audience: "YOUR_API_IDENTIFIER"
-//   };
 
-  // Define middleware that validates incoming bearer tokens
-// using JWKS from dev-gviqn817.auth0.com
 const checkJwt = jwt({
     secret: jwksRsa.expressJwtSecret({
       cache: true,
@@ -30,10 +23,8 @@ const checkJwt = jwt({
       jwksRequestsPerMinute: 5,
       jwksUri: `https://${authConfig.domain}/.well-known/jwks.json`
     }),
-  
     audience: authConfig.audience,
     issuer: `https://${authConfig.domain}/`,
-    // issuer: 'https://dev-gviqn817.auth0.com/',
     algorithm: ["RS256"]
   });
 
@@ -105,6 +96,14 @@ quoteRoutes.post('/add', checkJwt, (req,res) => {
          .catch(err => {
             res.status(400).send(err);
          });
+});
+
+const checkScopes = jwtAuthz([ 'read:messages' ]);
+
+app.get('/api/private-scoped', checkJwt, checkScopes, function(req, res) {
+  res.json({
+    message: 'Hello from a private endpoint! You need to be authenticated and have a scope of read:messages to see this.'
+  });
 });
 
 app.use('/', quoteRoutes);
