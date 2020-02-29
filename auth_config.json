@@ -1,4 +1,4 @@
 {
     "domain": "dev-gviqn817.auth0.com",
-    "audience": "YOUR_API_IDENTIFIER"
+    "audience": "https://basicmernbackend"
 }
