@@ -18,27 +18,29 @@ let Quotes = require('./quotes.model');
 
 const checkJwt = jwt({
     secret: jwksRsa.expressJwtSecret({
-      cache: true,
-      rateLimit: true,
-      jwksRequestsPerMinute: 5,
-      jwksUri: `https://${authConfig.domain}/.well-known/jwks.json`
+        cache: true,
+        rateLimit: true,
+        jwksRequestsPerMinute: 5,
+        jwksUri: `https://${authConfig.domain}/.well-known/jwks.json`
     }),
     audience: authConfig.audience,
     issuer: `https://${authConfig.domain}/`,
     algorithm: ["RS256"]
-  });
+});
 
 
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
 app.use(bodyParser.json());
 
 // TODO: refactor to conditional select DB based on NODE_ENV
 mongoose.connect(
     process.env.DB_URI_REMOTE || process.env.DB_URI_LOCAL || 'mongodb://127.0.0.1:27017/quotes',
-    { 
-        useNewUrlParser: true, 
-        useUnifiedTopology: true 
+    {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
     }
 );
 
@@ -59,56 +61,58 @@ quoteRoutes.get('/', (req, res) => {
     });
 });
 
-quoteRoutes.get('/random', (req,res)=> 
-    {
-        Quotes.aggregate(
-            [ { $sample: { size: 1 } } ],
-            (err, randomQuote) => {
-                if (err) {
-                    console.log('Error in Aggregate.');
-                    console.log(err);
-                } else {
-                    res.json(randomQuote);
-                    console.log('/random was accessed')
-                }
+quoteRoutes.get('/random', (req, res) => {
+    Quotes.aggregate(
+        [{
+            $sample: {
+                size: 1
             }
-         );
-    }
-);
-
-quoteRoutes.get('/:id', (req,res) => 
-    {
-        let id = req.params.id;
-        Quotes.findById(id, (err, quote) => {
-            res.json(quote);
-        });
-    }
-);
-
-
-    // TODO: Check if /add is working properl
-quoteRoutes.post('/add', checkJwt, (req,res) => {
-    let quote = new Quotes(req.body);
-    quote.save()
-         .then(quote => {
-            res.status(200).json({'quote': 'quote added successfully'});
-         })
-         .catch(err => {
-            res.status(400).send(err);
-         });
+        }],
+        (err, randomQuote) => {
+            if (err) {
+                console.log('Error in Aggregate.');
+                console.log(err);
+            } else {
+                res.json(randomQuote);
+                console.log('/random was accessed')
+            }
+        }
+    );
 });
 
-const checkScopes = jwtAuthz([ 'read:messages' ]);
+quoteRoutes.get('/:id', (req, res) => {
+    let id = req.params.id;
+    Quotes.findById(id, (err, quote) => {
+        res.json(quote);
+    });
+});
 
-app.get('/api/private-scoped', checkJwt, checkScopes, function(req, res) {
-  res.json({
-    message: 'Hello from a private endpoint! You need to be authenticated and have a scope of read:messages to see this.'
-  });
+
+// TODO: Check if /add is working properl
+quoteRoutes.post('/add', checkJwt, (req, res) => {
+    let quote = new Quotes(req.body);
+    quote.save()
+        .then(quote => {
+            res.status(200).json({
+                'quote': 'quote added successfully'
+            });
+        })
+        .catch(err => {
+            res.status(400).send(err);
+        });
+});
+
+const checkScopes = jwtAuthz(['read:messages']);
+
+app.get('/api/private-scoped', checkJwt, checkScopes, function (req, res) {
+    res.json({
+        message: 'Hello from a private endpoint! You need to be authenticated and have a scope of read:messages to see this.'
+    });
 });
 
 app.use('/', quoteRoutes);
 
-app.listen (
+app.listen(
     PORT,
     () => {
         console.log('Listen on port: ' + PORT)
